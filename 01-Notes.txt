@@ -1,0 +1,45 @@
+SOA12c DOCKER COMPOSE
+
+1. Set myenv
+
+for i in `cat mysetting.txt `; do export $i; done
+
+1. Run soadb
+   - docker-compose up -d soadb
+2. UPDATE password
+   docker cp setPasswd.sh soadb:/home/oracle; docker exec soadb /home/oracle/setPasswd.sh Simple4u
+
+3. Once the database is up and running, reset password of sys
+    docker exec -it soadb bash
+    sqlplus / as sysdba 
+
+      ALTER USER SYS IDENTIFIED BY Simple4u ;
+      ALTER USER SYSTEM IDENTIFIED BY Simple4u ;
+      ALTER SESSION SET CONTAINER=mysoapdb;
+      commit;
+   
+
+
+
+4. Start the AdminServer
+   - docker-compose up -d soaas
+   - Also update the java.security file
+     docker cp java.security soaas:/u01/jdk/jre/lib/security
+   - disable derby
+     docker exec soaas mv /u01/oracle/wlserver/common/derby/lib/derby.jar /u01/oracle/wlserver/common/derby/lib/derby.jar.old
+
+
+5. Start Managed Server1
+   - docker-compose up -d soams1
+   - Also update the java.security file
+     docker cp java.security soams1:/u01/jdk/jre/lib/security
+   - disable derby
+     docker exec soams1 mv /u01/oracle/wlserver/common/derby/lib/derby.jar /u01/oracle/wlserver/common/derby/lib/derby.jar.old
+
+  
+6. Start Managed Server2
+   - docker-compose up -d soams2
+   - Also update the java.security file
+     docker cp java.security soams2:/u01/jdk/jre/lib/security
+   - disable derby
+     docker exec soams2 mv /u01/oracle/wlserver/common/derby/lib/derby.jar /u01/oracle/wlserver/common/derby/lib/derby.jar.old 
